@@ -5,7 +5,21 @@ defmodule GitClient.Client do
     plug(Tesla.Middleware.Headers, [{"User-Agent", "gitclient"}])
     plug(Tesla.Middleware.JSON)
 
-    def getreposByUsername(user) do
-      get("/users/#{user}/repos")
+    def getReposByUsername(user) do
+      "/users/#{user}/repos"
+      |> get()
+      |> handleGet()
+    end
+
+    defp handleGet({:ok, %Tesla.Env{status: 200, body: body}}) do
+      {:ok, body}
+    end
+
+    defp handleGet({:ok, %Tesla.Env{status: 404}}) do
+      {:error, "User not found!"}
+    end
+
+    defp handleGet({:error, _reason}) do
+      {:error, "Some error"}
     end
 end
